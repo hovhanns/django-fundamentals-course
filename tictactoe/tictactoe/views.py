@@ -1,6 +1,7 @@
-from django.http import HttpResponse
+from django.shortcuts import render, redirect
+
 
 def welcome(request):
-    print(request)
-    return HttpResponse("I'm here to raise you!")
-
+    if request.user.is_authenticated:
+        return redirect('player_home')
+    return render(request, 'tictactoe/welcome.html')
