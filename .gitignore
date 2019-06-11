@@ -2,3 +2,4 @@ tictactoe/gameplay/__pycache__
 tictactoe/player/__pycache__
 tictactoe/tictactoe/__pycache__
 .idea
+tictactoe/*/migrations/__pycache__
