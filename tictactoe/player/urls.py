@@ -2,6 +2,7 @@ from django.urls import path, re_path
 from django.contrib.auth.views import LoginView, LogoutView
 
 from .views import home
+from .views import new_invitation
 
 urlpatterns = [
     re_path(r'home$', home, name="player_home"),
@@ -10,6 +11,8 @@ urlpatterns = [
             name="player_login"),
     re_path(r'logout$',
             LogoutView.as_view(),
-            name="player_logout")
+            name="player_logout"),
+    re_path(r'new_invitation$', new_invitation,
+            name="player_new_invitation")
 
 ]
