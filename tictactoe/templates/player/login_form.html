@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load crispy_forms_tags %}
 {%  block title %}
     Login
 {% endblock %}
@@ -9,7 +9,7 @@
         {% csrf_token %}
         <p>Please login.</p>
 
-        {{ form }}
+        {{ form | crispy}}
 
         <button typ="submit" class="btn btn-success">Sign in</button>
 
