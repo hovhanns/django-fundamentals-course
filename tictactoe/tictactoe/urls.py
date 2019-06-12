@@ -21,5 +21,6 @@ from .views import welcome
 urlpatterns = [
     re_path(r'^admin/', admin.site.urls),
     re_path(r'^player/', include('player.urls')),
+    re_path(r'^games/', include('gameplay.urls')),
     re_path(r'^$', welcome, name="tictactoe_welcome")
 ]

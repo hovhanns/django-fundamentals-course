@@ -3,6 +3,8 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import User
+from django.urls import reverse
+from django.core.validators import MinLengthValidator, MaxLengthValidator
 
 GAME_STATUS_CHOICES = (
     ('F', 'First Player To Move'),
@@ -11,6 +13,8 @@ GAME_STATUS_CHOICES = (
     ('L', 'Second Player Wins'),
     ('D', 'Draw'),
 )
+
+BOARD_SIZE = 3
 
 
 class GamesQuerySet(models.QuerySet):
@@ -36,13 +40,44 @@ class Game(models.Model):
 
     objects = GamesQuerySet.as_manager()
 
+    def board(self):
+        board = [[None for x in range(BOARD_SIZE)] for y in range(BOARD_SIZE)]
+        for move in self.move_set.all():
+            board[move.y][move.x] = move
+        return board
+
+    def is_users_move(self, user):
+        return (user == self.first_player and self.status == 'F') or (user == self.second_player and self.status == 'S')
+
+    def new_move(self):
+        if self.status not in 'FS':
+            raise ValueError("Cannot make move on finished game")
+
+        return Move(
+            game=self,
+            by_first_player=self.status == 'F'
+        )
+
+    def get_absolute_url(self):
+        return reverse('gameplay_detail', args=[self.id])
+
     def __str__(self):
         return "{0} vs {1}".format(self.first_player, self.second_player)
 
 
 class Move(models.Model):
-    x = models.IntegerField()
-    y = models.IntegerField()
+    x = models.IntegerField(
+        validators=[MinLengthValidator(0),
+                    MaxLengthValidator(BOARD_SIZE - 1)]
+    )
+    y = models.IntegerField(
+        validators=[MinLengthValidator(0),
+                    MaxLengthValidator(BOARD_SIZE - 1)]
+    )
     comment = models.CharField(max_length=300, blank=True)
-    by_first_player = models.BooleanField()
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    by_first_player = models.BooleanField(editable=False, default="1")
+
+    def save(self, *args, **kwargs):
+        super(Move, self).save(*args, **kwargs)
+        self.game.update_after_move()
